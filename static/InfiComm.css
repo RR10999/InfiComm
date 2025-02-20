@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, label {
+    text-transform: uppercase;
+}
+
+/* Header */
+header {
+    background-color: #0044cc;
+    color: white;
+    padding: 20px;
+}
+
+/* Login Page */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+.login-card {
+    background: white;
+    padding: 30px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+input[type="password"] {
+    padding: 10px;
+    margin: 10px 0;
+    width: 100%;
+}
+
+button {
+    background-color: #0044cc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background-color: #0033aa;
+}
+
+/* Error Message */
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+/* Dashboard */
+.dashboard {
+    margin-top: 50px;
+}
+
+.dashboard-btn {
+    text-decoration: none;
+    background: #0044cc;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.dashboard-btn:hover {
+    background: #0033aa;
+}
+
+/* Table Management */
+.table-wrapper {
+    margin-top: 20px;
+    overflow-x: auto;
+    text-align: left;
+}
+
+table {
+    width: 80%;
+    margin: auto;
+    border-collapse: collapse;
+    background: white;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+th {
+    background: #0044cc;
+    color: white;
+}
+
+/* Delete Button */
+.delete-btn {
+    background: red;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: darkred;
+}
+
+.add-btn {
+    background: green;
+    color: white;
+}
+
+.add-btn:hover {
+    background: darkgreen;
+}
+.input-group {
+    display: block;  /* Ensures inputs appear row by row */
+    margin-bottom: 10px;
+}
+
+.button-group {
+    margin-top: 10px;
+    text-align: center;  /* Optional: Centers the button */
+}

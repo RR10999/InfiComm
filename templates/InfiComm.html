@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFICOMM TELECOMMUNICATIONS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='InfiComm.css') }}">
+</head>
+<body>
+    <header>
+        <h1>INFICOMM TELECOMMUNICATIONS</h1>
+    </header>
+    
+    <main>
+        <div class="container">
+            {% if not session.admin %}
+            <div class="login-container">
+                <div class="login-card">
+                    <h2>ADMIN LOGIN</h2>
+                    <form method="POST">
+                        <label for="password">PASSWORD:</label>
+                        <input type="password" id="password" name="password" required>
+                        <button type="submit">LOGIN</button>
+                    </form>
+                    {% if error %}
+                    <p class="error">{{ error }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <section class="dashboard">
+                <h2><a href="{{ url_for('dashboard') }}" class="dashboard-btn">DASHBOARD</a></h2>
+                <div class="table-list">
+                    {% for table in tables %}
+                    <div class="table-box">
+                        <a href="{{ url_for('manage_table', table_name=table) }}">{{ table.upper() }}</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            
+            {% if table_name %}
+            <section class="table-management">
+                <h2>MANAGING: {{ table_name.upper() }}</h2>
+                
+                <form method="POST" action="{{ url_for('search_records', table_name=table_name) }}" class="search-form">
+                    <input type="text" name="column" placeholder="COLUMN">
+                    <input type="text" name="value" placeholder="SEARCH VALUE">
+                    <button type="submit">SEARCH</button>
+                </form>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                {% for key in records[0].keys() %}
+                                <th>{{ key.upper() }}</th>
+                                {% endfor %}
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                            <tr>
+                                {% for value in record.values() %}
+                                <td>{{ value }}</td>
+                                {% endfor %}
+                                <td>
+                                    <form method="POST" action="{{ url_for('delete_record', table_name=table_name, record_id=record[table_name+'_id']) }}">
+                                        <button type="submit" class="delete-btn">DELETE</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+            <div style="margin-top: 20px;">
+            <button id="add-record-heading" onclick="toggleForm()">ADD NEW RECORD</button>
+            <div style="margin-top: 10px;">
+            <section id="add-record-section" style="display: none;">
+            <form method="POST" action="{{ url_for('add_record', table_name=table_name) }}" class="add-form">
+            <form method="POST" action="{{ url_for('add_record', table_name=table_name) }}" class="add-form">
+                {% for key in records[0].keys() %}
+                <label>{{ key.upper() }}:</label> <input type="text" name="{{ key }}" required>
+                {% endfor %}
+                <button type="submit" class="add-btn">ADD</button>
+            </form>
+            </div>
+        </section>
+
+                <script>
+                    function toggleForm() {
+                        var section = document.getElementById("add-record-section");
+                        if (section.style.display === "none") {
+                            section.style.display = "block";
+                            section.scrollIntoView({ behavior: "smooth", block: "start" });
+                        } else {
+                            section.style.display = "none";
+                        }
+                    }
+                </script>
+                
+            {% endif %}
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
