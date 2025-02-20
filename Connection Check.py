@@ -4,9 +4,9 @@ def check_connection():
     try:
         conn = mysql.connector.connect(
             host="localhost",  
-            user="root",       
-            password="BSHitman@999",        
-            database="InfiComm"  
+            user="",   //Your username    
+            password="",  //Your Password     
+            database=""  // Your DB Name
         )
         if conn.is_connected():
             print("MySQL Connection Successful!")
