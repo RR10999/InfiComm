@@ -35,7 +35,7 @@ CREATE TABLE plan (
 
 -- 4. Enrolled Plans Table
 CREATE TABLE enrolled_plan (
-    enrollment_id INT AUTO_INCREMENT PRIMARY KEY,
+    enrollment_id INT PRIMARY KEY,
     customer_id INT NOT NULL,
     plan_id INT NOT NULL,
     start_date DATE NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE traffic (
 
 -- 10. Customer Support Table
 CREATE TABLE support_ticket (
-    ticket_id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT PRIMARY KEY,
     customer_id INT NOT NULL,
     issue_description TEXT NOT NULL,
     status ENUM('Open', 'Resolved') DEFAULT 'Open',
@@ -138,7 +138,7 @@ CREATE TABLE user_role (
 
 -- 14. Network Tower Table
 CREATE TABLE network_tower (
-    tower_id INT AUTO_INCREMENT PRIMARY KEY,
+    tower_id INT PRIMARY KEY,
     location VARCHAR(255) NOT NULL,
     coverage_area VARCHAR(255),
     status ENUM('Active', 'Inactive') DEFAULT 'Active'
@@ -146,7 +146,7 @@ CREATE TABLE network_tower (
 
 -- 15. Service Requests Table
 CREATE TABLE service_request (
-    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    request_id INT PRIMARY KEY,
     customer_id INT NOT NULL,
     service_type ENUM('Broadband', 'SIM Activation', 'Plan Change', 'Technical Support') NOT NULL,
     status ENUM('Pending', 'In Progress', 'Resolved') DEFAULT 'Pending',
@@ -155,4 +155,4 @@ CREATE TABLE service_request (
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
 
-select * from plan;
+select * from user;
