@@ -8,7 +8,6 @@
 </head>
 <body>
     <h1>InfiComm Telecommunications</h1>
-
     {% if not session.admin %}
     <div class="login">
         <h2>Admin Login</h2>
@@ -28,17 +27,14 @@
         <li><a href="{{ url_for('manage_table', table_name=table) }}">{{ table.capitalize() }}</a></li>
         {% endfor %}
     </ul>
-    
     {% if table_name %}
     <h2>Managing: {{ table_name }}</h2>
-    
     <form method="POST" action="{{ url_for('search_records', table_name=table_name) }}">
         <label>Search By:</label>
         <input type="text" name="column" placeholder="Column">
         <input type="text" name="value" placeholder="Search Value">
         <button type="submit">Search</button>
     </form>
-
     <table border="1">
         <tr>
             {% for key in records[0].keys() %}
@@ -59,7 +55,6 @@
         </tr>
         {% endfor %}
     </table>
-    
     <h3>Add New Record</h3>
     <form method="POST" action="{{ url_for('add_record', table_name=table_name) }}">
         {% for key in records[0].keys() %}
@@ -67,7 +62,6 @@
         {% endfor %}
         <button type="submit">Add</button>
     </form>
-    
     {% endif %}
     {% endif %}
 </body>
