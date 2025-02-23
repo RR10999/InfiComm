@@ -1,31 +1,42 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, g
 import mysql.connector
+import os
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")  # Use environment variable
 
-# Database Connection
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="BSHitman@999",
-    database="InfiComm"
-)
-cursor = db.cursor(dictionary=True)
+# Database Connection Function
+def get_db():
+    if 'db' not in g:
+        g.db = mysql.connector.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            user=os.getenv("DB_USER", "root"),
+            password=os.getenv("DB_PASS", "BSHitman@999"),
+            database=os.getenv("DB_NAME", "InfiComm")
+        )
+        g.cursor = g.db.cursor(dictionary=True)
+    return g.db, g.cursor
 
-# Admin Login Page
+@app.before_request
+def before_request():
+    get_db()
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        password = request.form["password"]
-        if password == "admin123":  # Change this to your actual password
+        password = request.form.get("password")
+        if password == os.getenv("ADMIN_PASSWORD", "admin123"):
             session["admin"] = True
             return redirect(url_for("dashboard"))
-        else:
-            return render_template("InfiComm.html", error="Incorrect password")
+        return render_template("InfiComm.html", error="Incorrect password")
     return render_template("InfiComm.html")
 
-# Dashboard Listing All Tables
 @app.route("/dashboard")
 def dashboard():
     if not session.get("admin"):
@@ -35,49 +46,58 @@ def dashboard():
               "user_role", "network_tower", "service_request"]
     return render_template("InfiComm.html", tables=tables)
 
-# CRUD Operations for All Tables
 @app.route("/table/<table_name>")
 def manage_table(table_name):
     if not session.get("admin"):
         return redirect(url_for("login"))
-    cursor.execute(f"SELECT * FROM {table_name}")
-    records = cursor.fetchall()
+    
+    db, cursor = get_db()
+    try:
+        cursor.execute("SELECT * FROM {}".format(table_name))
+        records = cursor.fetchall()
+    except mysql.connector.Error:
+        return "Invalid table name", 400
+    
     return render_template("InfiComm.html", table_name=table_name, records=records)
 
-# Add Record
 @app.route("/add/<table_name>", methods=["POST"])
 def add_record(table_name):
+    db, cursor = get_db()
     columns = request.form.keys()
     values = tuple(request.form.values())
     placeholders = ", ".join(["%s"] * len(values))
-    cursor.execute(f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})", values)
+    query = "INSERT INTO {} ({}) VALUES ({})".format(table_name, ", ".join(columns), placeholders)
+    cursor.execute(query, values)
     db.commit()
     return redirect(url_for("manage_table", table_name=table_name))
 
-# Update Record
 @app.route("/update/<table_name>/<int:record_id>", methods=["POST"])
 def update_record(table_name, record_id):
-    updates = ", ".join([f"{key}=%s" for key in request.form.keys()])
+    db, cursor = get_db()
+    updates = ", ".join(["{}=%s".format(key) for key in request.form.keys()])
     values = tuple(request.form.values()) + (record_id,)
     primary_key = table_name + "_id"
-    cursor.execute(f"UPDATE {table_name} SET {updates} WHERE {primary_key} = %s", values)
+    query = "UPDATE {} SET {} WHERE {} = %s".format(table_name, updates, primary_key)
+    cursor.execute(query, values)
     db.commit()
     return redirect(url_for("manage_table", table_name=table_name))
 
-# Delete Record
 @app.route("/delete/<table_name>/<int:record_id>", methods=["POST"])
 def delete_record(table_name, record_id):
+    db, cursor = get_db()
     primary_key = table_name + "_id"
-    cursor.execute(f"DELETE FROM {table_name} WHERE {primary_key} = %s", (record_id,))
+    query = "DELETE FROM {} WHERE {} = %s".format(table_name, primary_key)
+    cursor.execute(query, (record_id,))
     db.commit()
     return redirect(url_for("manage_table", table_name=table_name))
 
-# Search Records
 @app.route("/search/<table_name>", methods=["POST"])
 def search_records(table_name):
-    column = request.form["column"]
-    value = request.form["value"]
-    cursor.execute(f"SELECT * FROM {table_name} WHERE {column} LIKE %s", (f"%{value}%",))
+    db, cursor = get_db()
+    column = request.form.get("column")
+    value = request.form.get("value")
+    query = "SELECT * FROM {} WHERE {} LIKE %s".format(table_name, column)
+    cursor.execute(query, ("%" + value + "%",))
     results = cursor.fetchall()
     return render_template("InfiComm.html", table_name=table_name, records=results)
 
