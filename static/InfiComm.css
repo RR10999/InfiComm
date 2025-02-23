@@ -1,127 +1,179 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    text-align: center;
+    font-family: 'Arial', sans-serif;
+    background-color: #eef2f7;
     margin: 0;
     padding: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-h1, h2, h3, label {
-    text-transform: uppercase;
-}
-
-/* Header */
 header {
-    background-color: #0044cc;
-    color: white;
-    padding: 20px;
+    background-color:rgb(42, 62, 124);
+    color: rgb(255, 255, 255);
+    padding: 30px 0;
+    font-size: 1.00em;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Login Page */
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 80vh;
+    height: 70vh;
 }
 
 .login-card {
-    background: white;
-    padding: 30px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    background: rgb(20, 20, 119);
+    padding:50 px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 450px;
+    transition: transform 0.3s ease;
 }
 
-input[type="password"] {
-    padding: 10px;
-    margin: 10px 0;
-    width: 100%;
+.login-card:hover {
+    transform: scale(1.05);
 }
 
-button {
-    background-color: #0044cc;
+button, .dashboard-btn {
+    display: inline-block;
+    background:rgb(255, 0, 0);
     color: white;
+    padding: 12px 18px;
     border: none;
-    padding: 10px 20px;
     cursor: pointer;
-    text-transform: uppercase;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-button:hover {
-    background-color: #0033aa;
+button:hover, .dashboard-btn:hover {
+    background:rgb(0, 0, 0);
+    transform: scale(1.05);
 }
 
-/* Error Message */
 .error {
     color: red;
-    margin-top: 10px;
-}
-
-/* Dashboard */
-.dashboard {
-    margin-top: 50px;
-}
-
-.dashboard-btn {
-    text-decoration: none;
-    background: #0044cc;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 5px;
     font-weight: bold;
 }
 
-.dashboard-btn:hover {
-    background: #0033aa;
+.table-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-/* Table Management */
-.table-wrapper {
+h3 {
+    cursor: pointer; /* Makes it clear it's clickable */
+    color: blue;
+    text-decoration: underline;
+}
+
+.add-form {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+}
+
+.table-list li {
+    margin: 10px;
+    padding: 12px 20px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.table-list li:hover {
+    transform: scale(1.1);
+    background: #f8f9fa;
+}
+
+.table-management {
     margin-top: 20px;
+}
+
+.search-form input {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.table-wrapper {
     overflow-x: auto;
-    text-align: left;
 }
 
 table {
-    width: 80%;
-    margin: auto;
+    width:auto;
+    margin: 20px auto;
     border-collapse: collapse;
     background: white;
+    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.2);
+    border-radius: 18px;
+    overflow: hidden;
 }
 
-table, th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
+th, td {
+    border: 2px solid #007BFF;
+    padding: 20px;
+    text-align: center;
 }
+
 th {
-    background: #0044cc;
+    background: #007BFF;
     color: white;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
-/* Delete Button */
-.delete-btn {
-    background: red;
-    color: white;
+td {
+    background: #f9f9f9;
 }
 
-.delete-btn:hover {
-    background: darkred;
+tr:nth-child(even) td {
+    background: #e6f0ff;
+}
+
+.add-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.add-form input {
+    margin: 8px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 80%;
 }
 
 .add-btn {
-    background: green;
-    color: white;
+    background: #8328a7;
 }
 
 .add-btn:hover {
-    background: darkgreen;
-}
-.input-group {
-    display: block;  /* Ensures inputs appear row by row */
-    margin-bottom: 10px;
+    background: #2b2188;
 }
 
-.button-group {
-    margin-top: 10px;
-    text-align: center;  /* Optional: Centers the button */
+.delete-btn {
+    background: #dc3545;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.delete-btn:hover {
+    background: #c82333;
 }
