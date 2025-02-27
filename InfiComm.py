@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, g
+from flask import Flask, render_template, request, redirect, url_for, session, g, jsonify
 import mysql.connector
 import os
 
@@ -27,6 +27,7 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+# 🔹 LOGIN PAGE
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -34,72 +35,81 @@ def login():
         if password == os.getenv("ADMIN_PASSWORD", "admin123"):
             session["admin"] = True
             return redirect(url_for("dashboard"))
-        return render_template("InfiComm.html", error="Incorrect password")
-    return render_template("InfiComm.html")
+    return render_template("login.html", error="Incorrect password" if request.method == "POST" else None)
 
+# 🔹 LOGOUT ROUTE (Fix for BuildError)
+@app.route("/logout")
+def logout():
+    session.pop("admin", None)  # Log out the user
+    return redirect(url_for("login"))
+
+# 🔹 DASHBOARD (Shows Users)
 @app.route("/dashboard")
 def dashboard():
     if not session.get("admin"):
         return redirect(url_for("login"))
-    tables = ["user", "customer", "plan", "enrolled_plan", "amenity", "customer_amenity",
-              "bill", "payment", "traffic", "support_ticket", "recharge", "role",
-              "user_role", "network_tower", "service_request"]
-    return render_template("InfiComm.html", tables=tables)
 
-@app.route("/table/<table_name>")
-def manage_table(table_name):
-    if not session.get("admin"):
-        return redirect(url_for("login"))
+    db, cursor = get_db()
+    cursor.execute("""
+        SELECT user.user_id, user.name, user.phone, plan.name AS enrolled_plan, plan.price
+        FROM user
+        LEFT JOIN enrolled_plan ON user.user_id = enrolled_plan.user_id
+        LEFT JOIN plan ON enrolled_plan.plan_id = plan.plan_id
+    """)
+    users_with_plans = cursor.fetchall()
+    return render_template("InfiComm.html", users_with_plans=users_with_plans)
+
+# 🔹 ADD USER
+@app.route("/add_user", methods=["POST"])
+def add_user():
+    db, cursor = get_db()
+    data = request.json
+    cursor.execute("INSERT INTO user (name, phone) VALUES (%s, %s)", (data["name"], data["phone"]))
+    db.commit()
+    return jsonify({"success": True})
+
+# 🔹 UPDATE USER
+@app.route("/update_user/<int:user_id>", methods=["POST"])
+def update_user(user_id):
+    db, cursor = get_db()
+    data = request.json
+    cursor.execute("""
+        UPDATE user
+        SET phone = %s
+        WHERE user_id = %s
+    """, (data["phone"], user_id))
+
+    cursor.execute("""
+        UPDATE plan
+        SET name = %s, price = %s
+        WHERE plan_id = (SELECT plan_id FROM enrolled_plan WHERE user_id = %s)
+    """, (data["plan"], data["price"], user_id))
+
+    db.commit()
+    return jsonify({"success": True})
+
+# 🔹 FETCH FULL USER DETAILS
+@app.route("/user/<int:user_id>")
+def user_details(user_id):
+    db, cursor = get_db()
+    cursor.execute("""
+        SELECT user.*, plan.name AS enrolled_plan, plan.price 
+        FROM user
+        LEFT JOIN enrolled_plan ON user.user_id = enrolled_plan.user_id
+        LEFT JOIN plan ON enrolled_plan.plan_id = plan.plan_id
+        WHERE user.user_id = %s
+    """, (user_id,))
+    user_data = cursor.fetchone()
     
-    db, cursor = get_db()
-    try:
-        cursor.execute("SELECT * FROM {}".format(table_name))
-        records = cursor.fetchall()
-    except mysql.connector.Error:
-        return "Invalid table name", 400
-    
-    return render_template("InfiComm.html", table_name=table_name, records=records)
+    return jsonify(user_data)
 
-@app.route("/add/<table_name>", methods=["POST"])
-def add_record(table_name):
+# 🔹 DELETE USER
+@app.route("/delete_user/<int:user_id>", methods=["POST"])
+def delete_user(user_id):
     db, cursor = get_db()
-    columns = request.form.keys()
-    values = tuple(request.form.values())
-    placeholders = ", ".join(["%s"] * len(values))
-    query = "INSERT INTO {} ({}) VALUES ({})".format(table_name, ", ".join(columns), placeholders)
-    cursor.execute(query, values)
+    cursor.execute("DELETE FROM user WHERE user_id = %s", (user_id,))
     db.commit()
-    return redirect(url_for("manage_table", table_name=table_name))
-
-@app.route("/update/<table_name>/<int:record_id>", methods=["POST"])
-def update_record(table_name, record_id):
-    db, cursor = get_db()
-    updates = ", ".join(["{}=%s".format(key) for key in request.form.keys()])
-    values = tuple(request.form.values()) + (record_id,)
-    primary_key = table_name + "_id"
-    query = "UPDATE {} SET {} WHERE {} = %s".format(table_name, updates, primary_key)
-    cursor.execute(query, values)
-    db.commit()
-    return redirect(url_for("manage_table", table_name=table_name))
-
-@app.route("/delete/<table_name>/<int:record_id>", methods=["POST"])
-def delete_record(table_name, record_id):
-    db, cursor = get_db()
-    primary_key = table_name + "_id"
-    query = "DELETE FROM {} WHERE {} = %s".format(table_name, primary_key)
-    cursor.execute(query, (record_id,))
-    db.commit()
-    return redirect(url_for("manage_table", table_name=table_name))
-
-@app.route("/search/<table_name>", methods=["POST"])
-def search_records(table_name):
-    db, cursor = get_db()
-    column = request.form.get("column")
-    value = request.form.get("value")
-    query = "SELECT * FROM {} WHERE {} LIKE %s".format(table_name, column)
-    cursor.execute(query, ("%" + value + "%",))
-    results = cursor.fetchall()
-    return render_template("InfiComm.html", table_name=table_name, records=results)
+    return jsonify({"success": True})
 
 if __name__ == "__main__":
     app.run(debug=True)

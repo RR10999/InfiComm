@@ -3,111 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INFICOMM TELECOMMUNICATIONS</title>
+    <title>Admin Dashboard - InfiComm</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='InfiComm.css') }}">
-    <script src="{{ url_for('static', filename='static/InfiComm.js') }}"></script>
+    <script src="{{ url_for('static', filename='InfiComm.js') }}"></script>
 </head>
 <body>
     <header>
-        <h1>INFICOMM TELECOMMUNICATIONS</h1>
+        <h1>Admin Dashboard</h1>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
     </header>
-    
+
     <main>
         <div class="container">
-            {% if not session.admin %}
-            <div class="login-container">
-                <div class="login-card">
-                    <h2>ADMIN LOGIN</h2>
-                    <form method="POST">
-                        <label for="password">PASSWORD:</label>
-                        <input type="password" id="password" name="password" required>
-                        <button type="submit">LOGIN</button>
+            <h2>Users & Enrolled Plans</h2>
+            <button class="add-user-btn" onclick="openAddUserPopup()">+ Add New User</button>
+
+            <div id="add-user-popup" class="popup">
+                <div class="popup-content">
+                    <h2>Add New User</h2>
+                    <form id="add-user-form">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+
+                        <label for="phone">Phone:</label>
+                        <input type="text" id="phone" name="phone" required>
+
+                        <label for="plan">Plan Name:</label>
+                        <input type="text" id="plan" name="plan" required>
+
+                        <label for="price">Plan Price:</label>
+                        <input type="number" id="price" name="price" required>
+
+                        <button type="button" onclick="addUser()">Submit</button>
+                        <button type="button" onclick="closeAddUserPopup()">Cancel</button>
                     </form>
-                    {% if error %}
-                    <p class="error">{{ error }}</p>
-                    {% endif %}
                 </div>
             </div>
-            {% else %}
-            <section class="dashboard">
-                <h2><a href="{{ url_for('dashboard') }}" class="dashboard-btn">DASHBOARD</a></h2>
-                <div class="table-list">
-                    {% for table in tables %}
-                    <div class="table-box">
-                        <a href="{{ url_for('manage_table', table_name=table) }}">{{ table.upper() }}</a>
-                    </div>
-                    {% endfor %}
-                </div>
-            </section>
-            
-            {% if table_name %}
-            <section class="table-management">
-                <h2>MANAGING: {{ table_name.upper() }}</h2>
-                
-                <form method="POST" action="{{ url_for('search_records', table_name=table_name) }}" class="search-form">
-                    <input type="text" name="column" placeholder="COLUMN">
-                    <input type="text" name="value" placeholder="SEARCH VALUE">
-                    <button type="submit">SEARCH</button>
-                </form>
-                
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                {% for key in records[0].keys() %}
-                                <th>{{ key.upper() }}</th>
-                                {% endfor %}
-                                <th>ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in records %}
-                            <tr>
-                                {% for value in record.values() %}
-                                <td>{{ value }}</td>
-                                {% endfor %}
-                                <td>
-                                    <form method="POST" action="{{ url_for('delete_record', table_name=table_name, record_id=record[table_name+'_id']) }}">
-                                        <button type="submit" class="delete-btn">DELETE</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                
-                <h3 id="add-record-heading" onclick="toggleForm()">ADD NEW RECORD</h3>
 
-                <!-- Form section (Initially Hidden) -->
-                <section id="add-record-section" style="display: none;">
-                    <form method="POST" action="{{ url_for('add_record', table_name=table_name) }}" class="add-form">
-                        {% for key in records[0].keys() %}
-                        <label>{{ key.upper() }}:</label> 
-                        <input type="text" name="{{ key }}" required>
-                        {% endfor %}
-                        <button type="submit" class="add-btn">ADD</button>
-                    </form>
-                </section>
-                
-                <script>
-                    function toggleForm() {
-                        var section = document.getElementById("add-record-section");
-                
-                        // Toggle form visibility
-                        if (section.style.display === "none") {
-                            section.style.display = "block"; // Show form
-                            section.scrollIntoView({ behavior: "smooth", block: "start" }); // Scroll to it smoothly
-                        } else {
-                            section.style.display = "none"; // Hide form
-                        }
-                    }
-                </script>
-                
-            {% endif %}
-            {% endif %}
+            <div class="dashboard">
+                {% for user in users_with_plans %}
+                <div class="user-card" id="user-{{ user.user_id }}">
+                    <h3>{{ user.name }}</h3>
+                    <p><strong>Phone:</strong> <span id="phone-{{ user.user_id }}">{{ user.phone }}</span></p>
+                    <p><strong>Plan:</strong> <span id="plan-{{ user.user_id }}">{{ user.enrolled_plan if user.enrolled_plan else "No Plan Enrolled" }}</span></p>
+                    <p><strong>Price:</strong> ₹<span id="price-{{ user.user_id }}">{{ user.price if user.price else "N/A" }}</span></p>
+                    
+                    <button class="edit-btn" onclick="enableEdit({{ user.user_id }})">Edit</button>
+                    <button class="update-btn hidden" onclick="updateUser({{ user.user_id }})">✔</button>
+                    <button class="cancel-btn hidden" onclick="cancelEdit({{ user.user_id }})">❌</button>
+                    <button class="delete-btn" onclick="confirmDelete({{ user.user_id }})">Delete</button>
+                </div>                
+                {% endfor %}
+            </div>
         </div>
     </main>
+
+    <div id="user-details-popup" class="popup">
+        <div class="popup-content">
+            <h2>User Details</h2>
+            <p id="user-info"></p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+    </div>
 </body>
 </html>
-
