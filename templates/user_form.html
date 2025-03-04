@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ "Edit" if record else "Create" }} User</h2>
+<form method="post">
+    <label>Name: <input type="text" name="name" value="{{ record.name if record else '' }}"></label><br>
+    <label>Email: <input type="email" name="email" value="{{ record.email if record else '' }}"></label><br>
+    <label>Password: <input type="password" name="password"></label><br>
+    <label>Phone: <input type="text" name="phone" value="{{ record.phone if record else '' }}"></label><br>
+    <label>User Type:
+        <select name="user_type">
+            <option value="customer" {% if record and record.user_type == "customer" %}selected{% endif %}>Customer</option>
+            <option value="admin" {% if record and record.user_type == "admin" %}selected{% endif %}>Admin</option>
+        </select>
+    </label><br>
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}

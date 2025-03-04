@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ "Edit" if record else "Create" }} Support Ticket</h2>
+<form method="post">
+    {% for col in columns %}
+    <label>{{ col }}: <input type="text" name="{{ col }}" value="{{ record[col] if record else '' }}"></label><br>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}
