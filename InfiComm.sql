@@ -19,7 +19,7 @@ CREATE TABLE support_ticket (support_id INT PRIMARY KEY AUTO_INCREMENT, user_id 
 -- TRANSACTIONS TABLE
 CREATE TABLE transactions (transactions_id INT PRIMARY KEY AUTO_INCREMENT, user_id INT, transaction_type ENUM('bill', 'payment', 'recharge') NOT NULL, amount DECIMAL(10,2), date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (user_id) REFERENCES user(id));
 -- USAGE HISTORY TABLE
-CREATE TABLE usage_history (usage_id INT PRIMARY KEY AUTO_INCREMENT, user_id INT,data_used VARCHAR(50),call_minutes INT, messages_sent INT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (user_id) REFERENCES user(id));
+CREATE TABLE usage_history (usage_id INT PRIMARY KEY AUTO_INCREMENT, user_id INT,data_used VARCHAR(50),usage_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (user_id) REFERENCES user(id));
 -- USER TABLE
 CREATE TABLE user (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100), email VARCHAR(100), phone VARCHAR(20), user_type ENUM('customer', 'admin') NOT NULL, password_hash VARCHAR(255), created_at date);
 
