@@ -2,9 +2,10 @@
 {% block content %}
 <h2>{{ "Edit" if record else "Create" }} Plan</h2>
 <form method="post">
-    {% for col in columns %}
-    <label>{{ col }}: <input type="text" name="{{ col }}" value="{{ record[col] if record else '' }}"></label><br>
-    {% endfor %}
+    <label>Plan Name: <input type="text" name="name" value="{{ record.name if record else '' }}"></label><br>
+    <label>Price: <input type="text" name="price" value="{{ record.price if record else '' }}"></label><br>
+    <label>Validity (in days): <input type="number" name="validity" value="{{ record.validity if record else '' }}"></label><br>
+    <label>Data Limit: <input type="text" name="data_limit" value="{{ record.data_limit if record else '' }}"></label><br>
     <button type="submit">Submit</button>
 </form>
 {% endblock %}

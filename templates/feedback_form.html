@@ -1,10 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>{{ "Edit" if record else "Create" }} Feedback</h2>
-<form method="post">
-    {% for col in columns %}
-    <label>{{ col }}: <input type="text" name="{{ col }}" value="{{ record[col] if record else '' }}"></label><br>
-    {% endfor %}
-    <button type="submit">Submit</button>
+<h2>{% if record %}Edit{% else %}Add{% endif %} Feedback</h2>
+
+<form method="POST">
+    <label for="user_id">User ID:</label>
+    <input type="number" name="user_id" id="user_id" value="{{ record.user_id if record else '' }}" required>
+
+    <label for="rating">Rating (1-5):</label>
+    <select name="rating" id="rating" required>
+        <option value="1" {% if record and record.rating == 1 %}selected{% endif %}>1 - Poor</option>
+        <option value="2" {% if record and record.rating == 2 %}selected{% endif %}>2 - Fair</option>
+        <option value="3" {% if record and record.rating == 3 %}selected{% endif %}>3 - Good</option>
+        <option value="4" {% if record and record.rating == 4 %}selected{% endif %}>4 - Very Good</option>
+        <option value="5" {% if record and record.rating == 5 %}selected{% endif %}>5 - Excellent</option>
+    </select>
+
+    <label for="comments">Comments:</label>
+    <textarea name="comments" id="comments" rows="4" required>{{ record.comments if record else '' }}</textarea>
+
+    <label for="date">Date:</label>
+    <input type="date" name="date" id="date" value="{{ record.date if record else '' }}" required>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="{{ url_for('list_feedback') }}" class="btn btn-secondary">Cancel</a>
 </form>
 {% endblock %}

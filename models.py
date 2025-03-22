@@ -19,10 +19,10 @@ class User(db.Model):
     usage_histories = db.relationship('UsageHistory', backref='user', lazy=True)
 
 class Plan(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    plan_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Numeric(10,2), nullable=False)
-    validity = db.Column(db.Integer, nullable=False)  # In days
+    validity = db.Column(db.Integer, nullable=False)  
     data_limit = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -30,7 +30,7 @@ class Plan(db.Model):
     subscriptions = db.relationship('SubscriptionHistory', backref='plan', lazy=True)
 
 class Billing(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    billing_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     amount_due = db.Column(db.Numeric(10,2), nullable=False)
     status = db.Column(db.String(20), nullable=False)
@@ -38,28 +38,28 @@ class Billing(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Feedback(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    feedback_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     comments = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ServiceRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    service_type = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(20), nullable=False)
-    requested_at = db.Column(db.DateTime, default=datetime.utcnow)
+    service_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    service_type = db.Column(db.String(100))
+    status = db.Column(db.String(20))
+    requested_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 class SubscriptionHistory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    subscription_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    plan_id = db.Column(db.Integer, db.ForeignKey('plan.id'), nullable=False)
+    plan_id = db.Column(db.Integer, db.ForeignKey('plan.plan_id'), nullable=False)
     start_date = db.Column(db.DateTime, default=datetime.utcnow)
     end_date = db.Column(db.DateTime, nullable=False)
 
 class SupportTicket(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    support_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
     message = db.Column(db.Text, nullable=False)
@@ -67,20 +67,20 @@ class SupportTicket(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Transactions(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    transactions_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     transaction_type = db.Column(db.String(50), nullable=False)
     amount = db.Column(db.Numeric(10,2), nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
 class UsageHistory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    usage_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     data_used = db.Column(db.String(50), nullable=False)
     usage_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Amenity(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    amenity_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

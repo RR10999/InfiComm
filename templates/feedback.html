@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Feedback List</h2>
+<h2>Feedback Records</h2>
 <a href="{{ url_for('create_feedback') }}" class="btn btn-primary">Add Feedback</a>
 <table border="1">
     <tr>
-        {% for col in columns %}
-        <th>{{ col }}</th>
-        {% endfor %}
+        <th>Feedback ID</th>
+        <th>User ID</th>
+        <th>Rating</th>
+        <th>Comments</th>
+        <th>Date</th>
         <th>Actions</th>
     </tr>
-    {% for record in records %}
+    {% for feedback in records %}  {# Using 'records' from routes.py #}
     <tr>
-        {% for col in columns %}
-        <td>{{ record[col] }}</td>
-        {% endfor %}
+        <td>{{ feedback.feedback_id }}</td>
+        <td>{{ feedback.user_id }}</td>
+        <td>{{ feedback.rating }}</td>
+        <td>{{ feedback.comments }}</td>
+        <td>{{ feedback.date }}</td>
         <td>
-            <a href="{{ url_for('edit_feedback', id=record.id) }}">Edit</a>
-            <form action="{{ url_for('delete_feedback', id=record.id) }}" method="post" style="display:inline;">
+            <a href="{{ url_for('edit_feedback', id=feedback.feedback_id) }}">Edit</a>
+            <form action="{{ url_for('delete_feedback', id=feedback.feedback_id) }}" method="post" style="display:inline;">
                 <button type="submit">Delete</button>
             </form>
         </td>

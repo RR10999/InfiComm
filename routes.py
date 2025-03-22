@@ -50,7 +50,9 @@ def delete_user(id):
 @app.route('/plan')
 def list_plans():
     plans = Plan.query.all()
-    return render_template('plan.html', records=plans)
+    for plan in plans:
+        print(f"DEBUG: ID={plan.plan_id}, Name={plan.name}, Price={plan.price}")
+    return render_template('plan.html', plans=plans)
 
 @app.route('/plan/create', methods=['GET', 'POST'])
 def create_plan():
@@ -85,6 +87,8 @@ def delete_plan(id):
     db.session.commit()
     return redirect('/plan')
 
+
+
 # ---------------- CRUD FOR OTHER TABLES ----------------
 def generate_crud_routes(table_name, Model):
     list_func_name = f'list_{table_name}'
@@ -95,16 +99,25 @@ def generate_crud_routes(table_name, Model):
     # Define list route
     def list_func():
         records = Model.query.all()
+        for record in records:
+            print(f"DEBUG: {record}")
         return render_template(f'{table_name}.html', records=records)
 
     # Define create route
     def create_func():
         if request.method == 'POST':
-            new_record = Model(**{col: request.form[col] for col in request.form})
-            db.session.add(new_record)
-            db.session.commit()
-            return redirect(f'/{table_name}')
-        return render_template(f'{table_name}_form.html')
+            try:
+                new_record = Model(**{col: request.form[col] for col in request.form})
+                db.session.add(new_record)
+                db.session.commit()
+                return redirect(f'/{table_name}')
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error: {str(e)}", "danger")
+                return render_template(f'{table_name}_form.html')
+            return render_template(f'{table_name}_form.html')
+
+
 
     # Define edit route
     def edit_func(id):
