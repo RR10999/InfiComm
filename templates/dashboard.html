@@ -1,0 +1,23 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Dashboard</h1>
+        <ul class="table-list">
+            {% for table in tables %}
+                <li>
+                    <a href="{{ url_for('list_' + table) }}">{{ table.replace('_', ' ').title() }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </div>
+</body>
+</html>

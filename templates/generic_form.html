@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if record %}Edit{% else %}Create{% endif %} {{ entity }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>{% if record %}Edit{% else %}Create{% endif %} {{ entity }}</h1>
+
+        <form method="POST">
+            {% if csrf_token %}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% endif %}
+            
+            {% for col in columns %}
+                <div class="form-group">
+                    <label for="{{ col }}">{{ col.replace('_', ' ').title() }}</label>
+                    <input type="text" id="{{ col }}" name="{{ col }}" value="{{ getattr(record, col, '') }}">
+                </div>
+            {% endfor %}
+            
+            <button type="submit">Save</button>
+        </form>
+
+        <a href="{{ url_for('list_' + entity) }}" class="back-link">Back to {{ entity }}</a>
+    </div>
+</body>
+</html>

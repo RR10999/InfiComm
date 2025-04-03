@@ -1,152 +1,146 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, session
 from app import app, db
 from models import User, Plan, Billing, Feedback, ServiceRequest, SubscriptionHistory, SupportTicket, Transactions, UsageHistory, Amenity
 
-# ---------------- HOME PAGE ----------------
-@app.route('/')
+# Secret key for session management
+app.secret_key = "your_secret_key_here"  # Change this to a secure value
+
+# Hardcoded admin credentials
+VALID_USERNAME = "admin"
+VALID_PASSWORD = "password"
+
+# ---------------- LOGIN ROUTES ----------------
+@app.route("/", methods=["GET"])
 def index():
-    return render_template('index.html')
-
-# ---------------- USER CRUD ----------------
-@app.route('/user')
-def list_users():
-    users = User.query.all()
-    return render_template('user.html', records=users)
-
-@app.route('/user/create', methods=['GET', 'POST'])
-def create_user():
-    if request.method == 'POST':
-        new_user = User(
-            name=request.form['name'],
-            email=request.form['email'],
-            phone=request.form['phone'],
-            user_type=request.form['user_type']
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect('/user')
-    return render_template('user_form.html')
-
-@app.route('/user/edit/<int:id>', methods=['GET', 'POST'])
-def edit_user(id):
-    user = User.query.get(id)
-    if request.method == 'POST':
-        user.name = request.form['name']
-        user.email = request.form['email']
-        user.phone = request.form['phone']
-        user.user_type = request.form['user_type']
-        db.session.commit()
-        return redirect('/user')
-    return render_template('user_form.html', record=user)
-
-@app.route('/user/delete/<int:id>', methods=['POST'])
-def delete_user(id):
-    user = User.query.get(id)
-    db.session.delete(user)
-    db.session.commit()
-    return redirect('/user')
-
-# ---------------- PLAN CRUD ----------------
-@app.route('/plan')
-def list_plans():
-    plans = Plan.query.all()
-    for plan in plans:
-        print(f"DEBUG: ID={plan.plan_id}, Name={plan.name}, Price={plan.price}")
-    return render_template('plan.html', plans=plans)
-
-@app.route('/plan/create', methods=['GET', 'POST'])
-def create_plan():
-    if request.method == 'POST':
-        new_plan = Plan(
-            name=request.form['name'],
-            price=request.form['price'],
-            validity=request.form['validity'],
-            data_limit=request.form['data_limit']
-        )
-        db.session.add(new_plan)
-        db.session.commit()
-        return redirect('/plan')
-    return render_template('plan_form.html')
-
-@app.route('/plan/edit/<int:id>', methods=['GET', 'POST'])
-def edit_plan(id):
-    plan = Plan.query.get(id)
-    if request.method == 'POST':
-        plan.name = request.form['name']
-        plan.price = request.form['price']
-        plan.validity = request.form['validity']
-        plan.data_limit = request.form['data_limit']
-        db.session.commit()
-        return redirect('/plan')
-    return render_template('plan_form.html', record=plan)
-
-@app.route('/plan/delete/<int:id>', methods=['POST'])
-def delete_plan(id):
-    plan = Plan.query.get(id)
-    db.session.delete(plan)
-    db.session.commit()
-    return redirect('/plan')
+    """Render the login page"""
+    return render_template("index.html")
 
 
+@app.route("/login", methods=["POST"])
+def login():
+    """Process the login form submission"""
+    username = request.form.get("username")
+    password = request.form.get("password")
 
-# ---------------- CRUD FOR OTHER TABLES ----------------
+    if username == VALID_USERNAME and password == VALID_PASSWORD:
+        session["logged_in"] = True
+        return redirect(url_for("dashboard"))
+    else:
+        flash("Invalid credentials", "danger")
+        return redirect(url_for("index"))
+
+
+@app.route("/logout")
+def logout():
+    """Logout user and clear session"""
+    session.pop("logged_in", None)
+    return redirect(url_for("index"))
+
+
+# ---------------- DASHBOARD ----------------
+@app.route("/dashboard")
+def dashboard():
+    """Render the dashboard after login"""
+    if not session.get("logged_in"):
+        return redirect(url_for("index"))
+
+    tables = {
+        "user": "Users",
+        "plan": "Plans",
+        "billing": "Billing",
+        "feedback": "Feedback",
+        "service_request": "Service Requests",
+        "subscription_history": "Subscription History",
+        "support_ticket": "Support Tickets",
+        "transactions": "Transactions",
+        "usage_history": "Usage History",
+        "amenity": "Amenities",
+    }
+
+    return render_template("dashboard.html", tables=tables)
+
+
+# ---------------- GENERIC CRUD ROUTES ----------------
 def generate_crud_routes(table_name, Model):
-    list_func_name = f'list_{table_name}'
-    create_func_name = f'create_{table_name}'
-    edit_func_name = f'edit_{table_name}'
-    delete_func_name = f'delete_{table_name}'
+    """Dynamically generates CRUD routes for models."""
 
-    # Define list route
-    def list_func():
-        records = Model.query.all()
-        for record in records:
-            print(f"DEBUG: {record}")
-        return render_template(f'{table_name}.html', records=records)
+    def unique_route(endpoint_name, route_path, methods, view_func):
+        """Ensure unique function names for Flask routes."""
+        view_func.__name__ = endpoint_name
+        app.route(route_path, methods=methods)(view_func)
 
-    # Define create route
-    def create_func():
-        if request.method == 'POST':
+    # List Route
+    def list_records():
+        return render_template(
+            "generic_list.html",
+            records=Model.query.all(),
+            columns=Model.__table__.columns.keys(),
+            entity=table_name,
+            getattr=getattr,
+        )
+
+    unique_route(f"list_{table_name}", f"/{table_name}", ["GET"], list_records)
+
+    # Create Route
+    def create():
+        columns = Model.__table__.columns.keys()
+        if request.method == "POST":
             try:
-                new_record = Model(**{col: request.form[col] for col in request.form})
+                new_record = Model(
+                    **{col: request.form[col] for col in columns if col in request.form}
+                )
                 db.session.add(new_record)
                 db.session.commit()
-                return redirect(f'/{table_name}')
+                return redirect(url_for(f"list_{table_name}"))
             except Exception as e:
                 db.session.rollback()
                 flash(f"Error: {str(e)}", "danger")
-                return render_template(f'{table_name}_form.html')
-            return render_template(f'{table_name}_form.html')
 
+        return render_template(
+            "generic_form.html", columns=columns, entity=table_name, getattr=getattr
+        )
 
+    unique_route(f"create_{table_name}", f"/{table_name}/create", ["GET", "POST"], create)
 
-    # Define edit route
-    def edit_func(id):
+    # Edit Route
+    def edit(id):
         record = Model.query.get(id)
-        if request.method == 'POST':
-            for col in request.form:
-                setattr(record, col, request.form[col])
+        columns = Model.__table__.columns.keys()
+        if request.method == "POST":
+            for col in columns:
+                if col in request.form:
+                    setattr(record, col, request.form[col])
             db.session.commit()
-            return redirect(f'/{table_name}')
-        return render_template(f'{table_name}_form.html', record=record)
+            return redirect(url_for(f"list_{table_name}"))
 
-    # Define delete route
-    def delete_func(id):
+        return render_template(
+            "generic_form.html", record=record, columns=columns, entity=table_name, getattr=getattr
+        )
+
+    unique_route(f"edit_{table_name}", f"/{table_name}/edit/<int:id>", ["GET", "POST"], edit)
+
+    # Delete Route
+    def delete(id):
         record = Model.query.get(id)
         db.session.delete(record)
         db.session.commit()
-        return redirect(f'/{table_name}')
+        return redirect(url_for(f"list_{table_name}"))
 
-    # Register routes dynamically
-    app.add_url_rule(f'/{table_name}', list_func_name, list_func, methods=['GET'])
-    app.add_url_rule(f'/{table_name}/create', create_func_name, create_func, methods=['GET', 'POST'])
-    app.add_url_rule(f'/{table_name}/edit/<int:id>', edit_func_name, edit_func, methods=['GET', 'POST'])
-    app.add_url_rule(f'/{table_name}/delete/<int:id>', delete_func_name, delete_func, methods=['POST'])
+    unique_route(f"delete_{table_name}", f"/{table_name}/delete/<int:id>", ["POST"], delete)
 
-# Generate routes for remaining tables
+
+# Generate routes dynamically for all tables
 tables = {
-    "billing": Billing, "feedback": Feedback, "service_request": ServiceRequest,
-    "subscription_history": SubscriptionHistory, "support_ticket": SupportTicket,
-    "transactions": Transactions, "usage_history": UsageHistory, "amenity": Amenity
+    "user": User,
+    "plan": Plan,
+    "billing": Billing,
+    "feedback": Feedback,
+    "service_request": ServiceRequest,
+    "subscription_history": SubscriptionHistory,
+    "support_ticket": SupportTicket,
+    "transactions": Transactions,
+    "usage_history": UsageHistory,
+    "amenity": Amenity,
 }
 
 for table_name, Model in tables.items():
