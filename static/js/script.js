@@ -20,7 +20,6 @@ function togglePasswordVisibility(id) {
 document.addEventListener("DOMContentLoaded", function () {
     let currentPath = window.location.pathname;
     let navLinks = document.querySelectorAll(".sidebar a");
-
     navLinks.forEach(function (link) {
         if (link.getAttribute("href") === currentPath) {
             link.classList.add("active");
@@ -30,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
     let toggleButton = document.getElementById("sidebar-toggle");
     let sidebar = document.querySelector(".sidebar");
-
     if (toggleButton) {
         toggleButton.addEventListener("click", function () {
             sidebar.classList.toggle("collapsed");
