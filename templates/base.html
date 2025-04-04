@@ -9,19 +9,18 @@
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('dashboard') }}">Home</a>
-        <a href="{{ url_for('list_user') }}">Users</a>
-        <a href="{{ url_for('list_plan') }}">Plans</a>
+        <a href="{{ url_for('dashboard') }}" class="home-link">Home</a>
+        <a href="{{ url_for('list_amenity') }}">Amenities</a>
         <a href="{{ url_for('list_billing') }}">Billing</a>
         <a href="{{ url_for('list_feedback') }}">Feedback</a>
+        <a href="{{ url_for('list_plan') }}">Plans</a>
         <a href="{{ url_for('list_service_request') }}">Service Requests</a>
         <a href="{{ url_for('list_subscription_history') }}">Subscription History</a>
         <a href="{{ url_for('list_support_ticket') }}">Support Tickets</a>
         <a href="{{ url_for('list_transactions') }}">Transactions</a>
         <a href="{{ url_for('list_usage_history') }}">Usage History</a>
-        <a href="{{ url_for('list_amenity') }}">Amenities</a>
+        <a href="{{ url_for('list_user') }}">Users</a>
     </nav>
-    
     <div class="container">
         {% block content %}{% endblock %}
     </div>

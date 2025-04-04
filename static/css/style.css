@@ -1,4 +1,3 @@
-/* =================== GLOBAL STYLES =================== */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -6,8 +5,6 @@ body {
     background: #f4f7fc;
     color: #333;
 }
-
-/* Flexbox container to center everything */
 .container {
     width: 90%;
     max-width: 1200px;
@@ -17,14 +14,11 @@ body {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
-
-/* =================== NAVBAR =================== */
 nav {
-    background: #003366; /* Dark Blue */
+    background: #003366; 
     padding: 15px;
     text-align: center;
 }
-
 nav a {
     color: white;
     text-decoration: none;
@@ -32,13 +26,10 @@ nav a {
     font-size: 16px;
     font-weight: bold;
 }
-
 nav a:hover {
     background: #0055aa;
     border-radius: 5px;
 }
-
-/* =================== LOGIN PAGE =================== */
 .login-container {
     width: 100%;
     height: 100vh;
@@ -47,7 +38,6 @@ nav a:hover {
     align-items: center;
     background: #003366;
 }
-
 .login-box {
     background: white;
     padding: 40px;
@@ -56,12 +46,10 @@ nav a:hover {
     text-align: center;
     width: 350px;
 }
-
 .login-box h1 {
     color: #003366;
     margin-bottom: 20px;
 }
-
 .login-box input {
     width: 100%;
     padding: 10px;
@@ -69,7 +57,6 @@ nav a:hover {
     border: 1px solid #ccc;
     border-radius: 5px;
 }
-
 .login-box button {
     width: 100%;
     padding: 10px;
@@ -79,20 +66,15 @@ nav a:hover {
     cursor: pointer;
     font-size: 16px;
 }
-
 .login-box button:hover {
     background: #004499;
 }
-
-/* =================== DASHBOARD =================== */
 h1.text-center {
     text-align: center;
     font-size: 28px;
     color: #003366;
     margin-bottom: 20px;
 }
-
-/* Dashboard List */
 .table-list {
     list-style: none;
     padding: 0;
@@ -100,11 +82,9 @@ h1.text-center {
     flex-wrap: wrap;
     justify-content: center;
 }
-
 .table-list li {
     margin: 10px;
 }
-
 .table-list a {
     display: block;
     padding: 15px 25px;
@@ -114,30 +94,23 @@ h1.text-center {
     font-weight: bold;
     border-radius: 5px;
 }
-
 .table-list a:hover {
     background: #003366;
 }
-
-/* =================== TABLES =================== */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
-
 table th, table td {
     padding: 12px;
     border: 1px solid #ddd;
     text-align: left;
 }
-
 table th {
     background: #003366;
     color: white;
 }
-
-/* =================== BUTTONS =================== */
 .btn {
     padding: 10px 15px;
     text-decoration: none;
@@ -147,19 +120,14 @@ table th {
     text-align: center;
     margin: 5px;
 }
-
 .back-btn { background: #888; color: white; }
 .back-btn:hover { background: #666; }
-
 .create-btn { background: #28a745; color: white; }
 .create-btn:hover { background: #218838; }
-
 .edit-btn { background: #ffc107; color: white; }
 .edit-btn:hover { background: #e0a800; }
-
 .delete-btn { background: #dc3545; color: white; }
 .delete-btn:hover { background: #c82333; }
-
 .logout-btn {
     display: block;
     text-align: center;
@@ -171,25 +139,63 @@ table th {
     text-decoration: none;
     border-radius: 5px;
 }
-
 .logout-btn:hover {
     background: #c82333;
 }
-
-/* =================== RESPONSIVE DESIGN =================== */
 @media (max-width: 768px) {
     .container {
         width: 95%;
         padding: 15px;
     }
-
     .table-list {
         flex-direction: column;
         align-items: center;
     }
-
     .table-list a {
         width: 100%;
         text-align: center;
     }
+}
+nav {
+    background-color: #002855; 
+    padding: 15px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: 0.3s ease-in-out;
+}
+nav a:hover {
+    background-color: #004080;
+}
+nav a.home-link {
+    background-color: #ffcc00; 
+    color: #002855; 
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 12px 18px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+nav a.home-link:hover {
+    background-color: #e6b800;
+}
+.search-sort-form {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.search-sort-form input,
+.search-sort-form select,
+.search-sort-form button {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }

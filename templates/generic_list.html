@@ -1,41 +1,49 @@
-<!-- templates/generic_list.html -->
 {% extends 'base.html' %}
-
 {% block title %}List of {{ entity.replace('_', ' ').title() }}{% endblock %}
-
 {% block content %}
-    <div class="container">
-        <h1 class="text-center">{{ entity.replace('_', ' ').title() }}</h1>
-        
-        <div class="action-buttons">
-            <a href="{{ url_for('dashboard') }}" class="btn back-btn">← Back to Dashboard</a>
-            <a href="{{ url_for('create_' + entity) }}" class="btn create-btn">+ Create New {{ entity.replace('_', ' ').title() }}</a>
-        </div>
-
-        <table>
-            <thead>
+<div class="container">
+    <h1 class="text-center">{{ entity.replace('_', ' ').title() }}</h1>
+    <div class="action-buttons">
+        <a href="{{ url_for('dashboard') }}" class="btn back-btn">← Back to Dashboard</a>
+        <a href="{{ url_for('create_' + entity) }}" class="btn create-btn">+ Create New {{ entity.replace('_', ' ').title() }}</a>
+    </div>
+    <form method="GET" class="search-sort-form">
+        <input type="text" name="search" placeholder="Search..." value="{{ request.args.get('search', '') }}">
+        <select name="sort_by">
+            {% for col in columns %}
+                <option value="{{ col }}" {% if request.args.get('sort_by') == col %}selected{% endif %}>{{ col.replace('_', ' ').title() }}</option>
+            {% endfor %}
+        </select>
+        <select name="sort_order">
+            <option value="asc" {% if request.args.get('sort_order') == 'asc' %}selected{% endif %}>Ascending</option>
+            <option value="desc" {% if request.args.get('sort_order') == 'desc' %}selected{% endif %}>Descending</option>
+        </select>
+        <button type="submit">Apply</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                {% for col in columns %}
+                    <th>{{ col.replace('_', ' ').title() }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
                 <tr>
                     {% for col in columns %}
-                        <th>{{ col.replace('_', ' ').title() }}</th>
+                        <td>{{ getattr(record, col) }}</td>
                     {% endfor %}
-                    <th>Actions</th>
+                    <td class="actions">
+                        <a href="{{ url_for('edit_' + entity, id=record.id) }}" class="btn edit-btn">Edit</a>
+                        <form method="POST" action="{{ url_for('delete_' + entity, id=record.id) }}" class="inline-form">
+                            <button type="submit" class="btn delete-btn" onclick="return confirm('Are you sure you want to delete this?');">Delete</button>
+                        </form>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for record in records %}
-                    <tr>
-                        {% for col in columns %}
-                            <td>{{ getattr(record, col) }}</td>
-                        {% endfor %}
-                        <td class="actions">
-                            <a href="{{ url_for('edit_' + entity, id=record.id) }}" class="btn edit-btn">Edit</a>
-                            <form method="POST" action="{{ url_for('delete_' + entity, id=record.id) }}" class="inline-form">
-                                <button type="submit" class="btn delete-btn" onclick="return confirm('Are you sure you want to delete this?');">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
