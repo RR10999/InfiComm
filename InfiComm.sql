@@ -48,3 +48,74 @@ SELECT * FROM USAGE_HISTORY;
 SELECT * FROM USER;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+ALTER TABLE user ADD CONSTRAINT unique_email UNIQUE (email); -- Allows only Unique Mail
+ALTER TABLE user ADD CONSTRAINT chk_phone CHECK (LENGTH(phone) >= 10); -- Checks if Phone Number = 10
+ALTER TABLE feedback ADD CONSTRAINT chk_rating CHECK (rating BETWEEN 1 AND 5); -- Ensures valid feedback rating
+ALTER TABLE transactions ADD CONSTRAINT chk_amount CHECK (amount > 0); --Ensures that Amount is +ve
+ALTER TABLE transactions MODIFY COLUMN transaction_type SET('bill', 'payment', 'recharge');
+
+--Retrieve users and their feedback
+SELECT u.name, f.comments, f.rating, f.created_at
+FROM user u
+JOIN feedback f ON u.id = f.user_id;
+
+--Get all unresolved support tickets with user details
+SELECT u.name, s.subject, s.message, s.status, s.created_at
+FROM user u
+JOIN support_ticket s ON u.id = s.user_id
+WHERE s.status IN ('open', 'in progress');
+
+--Get transaction details along with user name
+SELECT u.name, t.transaction_type, t.amount, t.date
+FROM user u
+JOIN transactions t ON u.id = t.user_id;
+
+--Retrieve data usage history for all user
+SELECT u.name, uh.data_used, uh.usage_date
+FROM user u
+JOIN usage_history uh ON u.id = uh.user_id;
+
+--Create a view for user transactions summary
+CREATE VIEW transaction_summary AS
+SELECT u.id AS user_id, u.name, t.transaction_type, t.amount, t.date
+FROM user u
+JOIN transactions t ON u.id = t.user_id;
+SELECT * FROM transaction_summary;
+
+--Create a view for user feedback
+DELIMITER //
+CREATE VIEW user_feedback AS
+SELECT u.name, f.comments, f.rating, f.created_at
+FROM user u
+JOIN feedback f ON u.id = f.user_id;
+SELECT * FROM user_feedback;
+
+--Trigger for Creating Support Ticket if Rating in Feedback <=2
+CREATE TRIGGER after_feedback_inserts
+AFTER INSERT ON feedback
+FOR EACH ROW
+BEGIN
+    IF NEW.rating <= 2 THEN
+        INSERT INTO support_ticket (user_id, subject, message, status, created_at)
+        VALUES (NEW.user_id, 'Poor Feedback Alert', 'User has given a low rating.', 'open', NOW());
+    END IF;
+END;
+//
+
+--Trigger for Not Allowing User to Delete their Account if they have Pay Due
+DELIMITER //
+CREATE TRIGGER before_user_delete_billing_check
+BEFORE DELETE ON user
+FOR EACH ROW
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM billing 
+        WHERE user_id = OLD.id AND status = 'pending'
+    ) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Cannot delete user with pending billing records';
+    END IF;
+END;
+//
+SHOW TRIGGERS;
