@@ -118,4 +118,5 @@ BEGIN
     END IF;
 END;
 //
+    
 SHOW TRIGGERS;
