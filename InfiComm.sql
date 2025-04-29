@@ -48,12 +48,8 @@ SELECT * FROM TRANSACTIONS;
 SELECT * FROM USAGE_HISTORY;
 SELECT * FROM USER;
 
-<<<<<<< HEAD
-SET FOREIGN_KEY_CHECKS = 0;
-=======
-SET FOREIGN_KEY_CHECKS = 1;
->>>>>>> f99348de9040c78820b12b9e7c9b83ae8fad816e
 
+SET FOREIGN_KEY_CHECKS = 0;
 ALTER TABLE user ADD CONSTRAINT unique_email UNIQUE (email); -- Allows only Unique Mail
 ALTER TABLE user ADD CONSTRAINT chk_phone CHECK (LENGTH(phone) >= 10); -- Checks if Phone Number = 10
 ALTER TABLE feedback ADD CONSTRAINT chk_rating CHECK (rating BETWEEN 1 AND 5); -- Ensures valid feedback rating
@@ -123,47 +119,3 @@ BEGIN
     END IF;
 END;
 //
-<<<<<<< HEAD
-SHOW TRIGGERS;
-
-INSERT INTO user (id, name, email, phone, user_type, created_at) 
-VALUES (462, 'John Doe', 'john123@example.com',123456789,'customer',"2024-01-02");
-
-INSERT INTO user (id, name, email, phone, user_type, created_at) 
-VALUES (463, 'Rahul Sharma', 'rahul.sharma123@gmail.com',123456789,'customer',"2024-01-02");
-
-INSERT INTO feedback (feedback_id, user_id, comments, rating, created_at)
-VALUES (279, 1, "Amazing Network", 6, "2025-03-06 10:20:00");
-
-INSERT INTO feedback (feedback_id, user_id, comments, rating, created_at)
-VALUES (279, 1, "Poor Network", 1, "2025-03-06 10:20:00");
-
-INSERT INTO transactions (transactions_id, user_id, transaction_type, amount, date)
-VALUES (246,1,"recharge",-399,"2025-01-05");
-
-INSERT INTO transactions (transactions_id, user_id, transaction_type, amount, date)
-VALUES (246,1,"recharge",399.00,"2025-01-05");
-
-DELETE FROM user WHERE id = 1;
-
---Trigger Feedback--
-INSERT INTO feedback (feedback_id, user_id, comments, rating, created_at) 
-VALUES (423, 2, "Pathetic Service", 1, "2025-01-07");
-SELECT * FROM support_ticket WHERE user_id = 4;
-
---Trigger Delete Account
-INSERT INTO billing (billing_id, user_id, amount_due, status, due_date, created_at)
-VALUES (952, 338, 4040.64, 'pending', CURDATE(), CURDATE());
-DELETE FROM user WHERE id = 336;
- SELECT * FROM BILLING;
-
--- Adds an 'address' column to the 'user' table, potentially leading to redundancy if address data is also stored elsewhere.
-ALTER TABLE user ADD COLUMN address VARCHAR(255);
-
--- Creates an index on the 'user_id' column in the 'billing' table to improve query performance for searches involving 'user_id'.
-CREATE INDEX idx_user_id ON billing(user_id);
-SHOW INDEX FROM billing;
-=======
-    
-SHOW TRIGGERS;
->>>>>>> f99348de9040c78820b12b9e7c9b83ae8fad816e
